@@ -21,25 +21,18 @@ def main(cfg: dict):
     task = cfg['task']
     seed = cfg['seed']
     num_workers = cfg['num_workers']
+    log_interval = cfg["log_interval"]
     num_steps = cfg['train']['num_steps']
+    algo_args = cfg['train']['algorithm_params']
     num_env_steps = cfg['train']['num_env_steps']
     save_interval = cfg["train"]["save_interval"]
-    log_interval = cfg["log_interval"]
     save_path = os.path.join(
         "./checkpoints", task, cfg["algorithm"], cfg["id"], str(seed))
-    algo_args = cfg['train']['algorithm_params']
 
     logger = get_logger(cfg=cfg)
     logger.info(cfg)
     writer = SummaryWriter(log_dir=os.path.join(
         "./tb_logs", task, cfg["algorithm"], cfg["id"]))
-    # args = get_args()
-
-    # log_dir = os.path.expanduser(args.log_dir)
-    # eval_log_dir = log_dir + "_eval"
-    # utils.cleanup_log_dir(log_dir)
-    # if args.eval_interval is not None:
-    #     utils.cleanup_log_dir(eval_log_dir)
 
     torch.manual_seed(seed=seed)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -69,7 +62,8 @@ def main(cfg: dict):
     if 'PPO' in cfg['algorithm']:
         agent = PPO(actor_critic=actor_critic, **algo_args)
     else:
-        raise ValueError(f"Given non valid algorithm:{cfg['algorithm']}")
+        raise NotImplementedError(
+            f"Given unknown algorithm:{cfg['algorithm']}")
 
     rollouts = RolloutStorage(num_steps=num_steps, num_processes=num_workers,
                               obs_shape=envs.observation_space.shape, action_space=envs.action_space,
@@ -86,6 +80,7 @@ def main(cfg: dict):
     num_updates = int(num_env_steps) // num_steps // num_workers
     logger.info(f"Number of updates is set to: {num_updates}")
     logger.info(f"Training Begins!")
+
     for j in range(num_updates):
         if not cfg['train']['disable_linear_lr_decay']:
             # decrease learning rate linearly
