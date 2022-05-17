@@ -46,13 +46,14 @@ def main(cfg: dict):
 
     envs = get_env(cfg=cfg, num_workers=num_workers, device=device)
 
-    if cfg['train']['augmentation']['augs'] is None:
+    aug_cfg = cfg['train']['augmentation']
+    if aug_cfg['augs'] is None and not aug_cfg['crop'] and not aug_cfg['translate']:
         augmenter = None
         logger.info('No augmenter parameters given. No augmenter set')
     else:
         augmenter = Augmenter(cfg=cfg, device=device)
         logger.info(
-            f"Augmenter set. Parameters: {cfg['train']['augmentation']}")
+            f"Augmenter set. Parameters: {aug_cfg}")
 
     if cfg['algorithm'] == 'PPO':
         actor_critic = Policy(

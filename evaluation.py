@@ -11,7 +11,7 @@ def evaluate(actor_critic, cfg, num_processes, device, eval_step, writer=None, l
 
     for aug_key, aug_func in augs_dict.items():
         eval_envs = get_env(cfg=cfg, num_workers=num_processes,
-                            device=device, seed=cfg['seed'] + 1000)
+                            device=device, seed=cfg['seed'] + 1000, is_eval=True)
         eval_episode_rewards = []
 
         obs = eval_envs.reset()

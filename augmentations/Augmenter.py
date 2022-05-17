@@ -35,6 +35,17 @@ def create_aug_func_list(augs_list: list):
     return augs_func_list
 
 
+def center_crop_images(image, output_size):
+    h, w = image.shape[2:]
+    new_h, new_w = output_size, output_size
+
+    top = (h - new_h)//2
+    left = (w - new_w)//2
+
+    image = image[:, :, top:top + new_h, left:left + new_w]
+    return image
+
+
 class Augmenter:
     def __init__(self, cfg: dict, device: str) -> None:
         self.aug_list = cfg['train']['augmentation']['augs']
@@ -78,22 +89,25 @@ class Augmenter:
             sampled_batch_idxes = np.random.choice(
                 input.shape[0], self.batch_sz)
             input = input[sampled_batch_idxes]
-
-        sampled_idxes = np.random.choice(self.num_augs, self.batch_sz)
-        unique_values = np.unique(sampled_idxes)
-        aug_input = torch.zeros(input.shape).to(self.device)
+        aug_input = torch.clone(input=input)
 
         if self.is_crop:
             aug_input = rad.random_crop(
-                imgs_tnsr=aug_input, out=self.crop_sz).to(self.device)
+                imgs=aug_input, out=self.crop_sz)
 
         if self.is_translate:
+            centered_input = center_crop_images(
+                image=aug_input, output_size=self.pre_aug_width)
             aug_input = rad.random_translate(
-                imgs=aug_input, size=self.translate_sz).to(self.device)
+                imgs=centered_input, size=self.translate_sz).to(device=self.device)
 
-        for value in unique_values:
-            idxes_matching = np.where(sampled_idxes == value)[0]
-            aug_input[idxes_matching] = self.aug_funcs[value](
-                input[idxes_matching]).to(self.device)
+        if self.num_augs > 0:
+            sampled_idxes = np.random.choice(self.num_augs, self.batch_sz)
+            unique_values = np.unique(sampled_idxes)
+
+            for value in unique_values:
+                idxes_matching = np.where(sampled_idxes == value)[0]
+                aug_input[idxes_matching] = self.aug_funcs[value](
+                    aug_input[idxes_matching]).to(device=self.device)
 
         return aug_input

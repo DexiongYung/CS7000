@@ -4,10 +4,8 @@ from gym import spaces
 
 
 class SB3gym(gym.Env):
-    def __init__(self, cfg: dict):
+    def __init__(self, cfg: dict, is_eval: bool):
         super(SB3gym, self).__init__()
-        self.width = cfg["screen_width"]
-        self.height = cfg["screen_height"]
         self.env = gym.make(cfg["task"])
         self.action_space = self.env.action_space
         aug_cfg = cfg['train']['augmentation']
@@ -24,6 +22,12 @@ class SB3gym(gym.Env):
             self.observation_space = spaces.Box(
                 low=0, high=255, shape=(3, self.height, self.width), dtype=np.uint8
             )
+
+        if is_eval:
+            self.width = self.height = self.observation_space.shape[2]
+        else:
+            self.width = cfg["screen_width"]
+            self.height = cfg["screen_height"]
 
     def step(self, action):
         _, reward, done, info = self.env.step(action=action)

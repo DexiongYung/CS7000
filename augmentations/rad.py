@@ -5,14 +5,14 @@ import torch.nn as nn
 from augmentations.TransformLayer import ColorJitterLayer
 
 
-def random_crop(imgs_tnsr, out=100):
+def random_crop(imgs, out=100):
     """
         args:
         imgs: np.array shape (B,C,H,W)
         out: output size (e.g. 84)
         returns np.array
     """
-    imgs = np.copy(imgs_tnsr.cpu().numpy())
+    imgs = imgs.cpu().numpy()
     n, c, h, w = imgs.shape
     crop_max = h - out + 1
     w1 = np.random.randint(0, crop_max, n)
@@ -31,7 +31,7 @@ def grayscale(imgs):
 
     imgs = imgs.view([b, frames, 3, h, w])
     imgs = imgs[:, :, 0, ...] * 0.2989 + imgs[:, :,
-                                         1, ...] * 0.587 + imgs[:, :, 2, ...] * 0.114
+                                              1, ...] * 0.587 + imgs[:, :, 2, ...] * 0.114
 
     imgs = imgs.type(torch.uint8).float()
     # assert len(imgs.shape) == 3, imgs.shape
@@ -81,7 +81,7 @@ def random_cutout(tnsr_imgs, min_cut=10, max_cut=30):
         min / max cut: int, min / max size of cutout 
         returns np.array
     """
-    imgs = tnsr_imgs.cpu().numpy().copy()
+    imgs = tnsr_imgs.cpu().numpy()
     n, c, h, w = imgs.shape
     w1 = np.random.randint(min_cut, max_cut, n)
     h1 = np.random.randint(min_cut, max_cut, n)
@@ -101,7 +101,7 @@ def random_cutout_color(tnsr_imgs, min_cut=10, max_cut=30):
         imgs: shape (B,C,H,W)
         out: output size (e.g. 84)
     """
-    imgs = tnsr_imgs.cpu().numpy().copy()
+    imgs = tnsr_imgs.cpu().numpy()
     n, c, h, w = imgs.shape
     w1 = np.random.randint(min_cut, max_cut, n)
     h1 = np.random.randint(min_cut, max_cut, n)
@@ -193,7 +193,7 @@ def random_rotation(images, p=1):
         masks[i] = m
 
     out = masks[0] * images + masks[1] * rot90_images + \
-          masks[2] * rot180_images + masks[3] * rot270_images
+        masks[2] * rot180_images + masks[3] * rot270_images
 
     out = out.view([bs, -1, h, w])
     return out
@@ -222,7 +222,8 @@ def random_convolution(imgs):
 
     for trans_index in range(num_trans):
         torch.nn.init.xavier_normal_(rand_conv.weight.data)
-        temp_imgs = imgs[trans_index * batch_size:(trans_index + 1) * batch_size]
+        temp_imgs = imgs[trans_index *
+                         batch_size:(trans_index + 1) * batch_size]
         # (batch x stack, channel, h, w)
         temp_imgs = temp_imgs.reshape(-1, 3, img_h, img_w)
         rand_out = rand_conv(temp_imgs)
@@ -252,6 +253,7 @@ def random_color_jitter(imgs):
 
 
 def random_translate(imgs, size, return_random_idxs=False, h1s=None, w1s=None):
+    imgs = imgs.cpu().numpy()
     n, c, h, w = imgs.shape
     assert size >= h and size >= w
     outs = np.zeros((n, c, size, size), dtype=imgs.dtype)
@@ -261,7 +263,7 @@ def random_translate(imgs, size, return_random_idxs=False, h1s=None, w1s=None):
         out[:, h1:h1 + h, w1:w1 + w] = img
     if return_random_idxs:  # So can do the same to another set of imgs.
         return outs, dict(h1s=h1s, w1s=w1s)
-    return outs
+    return torch.tensor(outs)
 
 
 def no_aug(x):
