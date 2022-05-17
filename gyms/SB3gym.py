@@ -16,6 +16,8 @@ class SB3gym(gym.Env):
                 obs_img_sz = aug_cfg['translate_sz']
             elif 'crop' in aug_cfg and aug_cfg['crop']:
                 obs_img_sz = aug_cfg['crop_sz']
+            else:
+                obs_img_sz = cfg['screen_sz']
         else:
             obs_img_sz = cfg['screen_sz']
 
