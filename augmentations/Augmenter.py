@@ -54,8 +54,7 @@ class Augmenter:
         self.is_translate = False
         self.crop_sz = None
         self.translate_sz = None
-        self.pre_aug_width = cfg['screen_width']
-        self.pre_aug_height = cfg['screen_height']
+        self.pre_aug_sz = cfg['screen_sz']
         self.batch_sz = cfg['train']['augmentation']['batch_sz']
         self.is_full = cfg['train']['augmentation']['is_full']
         self.device = device

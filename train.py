@@ -46,14 +46,13 @@ def main(cfg: dict):
 
     envs = get_env(cfg=cfg, num_workers=num_workers, device=device)
 
-    aug_cfg = cfg['train']['augmentation']
-    if aug_cfg['augs'] is None and not aug_cfg['crop'] and not aug_cfg['translate']:
+    if 'augmentation' not in cfg['train']:
         augmenter = None
         logger.info('No augmenter parameters given. No augmenter set')
     else:
         augmenter = Augmenter(cfg=cfg, device=device)
         logger.info(
-            f"Augmenter set. Parameters: {aug_cfg}")
+            f"Augmenter set. Parameters: {cfg['train']['augmentation']}")
 
     if cfg['algorithm'] == 'PPO':
         actor_critic = Policy(
@@ -88,7 +87,6 @@ def main(cfg: dict):
     logger.info(f"Number of updates is set to: {num_updates}")
     logger.info(f"Training Begins!")
     for j in range(num_updates):
-
         if not cfg['train']['disable_linear_lr_decay']:
             # decrease learning rate linearly
             utils.update_linear_schedule(

@@ -8,31 +8,27 @@ class SB3gym(gym.Env):
         super(SB3gym, self).__init__()
         self.env = gym.make(cfg["task"])
         self.action_space = self.env.action_space
-        aug_cfg = cfg['train']['augmentation']
 
-        if 'translate' in aug_cfg and aug_cfg['translate']:
-            self.observation_space = spaces.Box(
-                low=0, high=255, shape=(3, aug_cfg['translate_sz'], aug_cfg['translate_sz']), dtype=np.uint8
-            )
-        elif 'crop' in aug_cfg and aug_cfg['crop']:
-            self.observation_space = spaces.Box(
-                low=0, high=255, shape=(3, aug_cfg['crop_sz'], aug_cfg['crop_sz']), dtype=np.uint8
-            )
+        obs_img_sz = None
+        if 'augmentation' in cfg['train']:
+            aug_cfg = cfg['train']['augmentation']
+            if 'translate' in aug_cfg and aug_cfg['translate']:
+                obs_img_sz = aug_cfg['translate_sz']
+            elif 'crop' in aug_cfg and aug_cfg['crop']:
+                obs_img_sz = aug_cfg['crop_sz']
         else:
-            self.observation_space = spaces.Box(
-                low=0, high=255, shape=(3, self.height, self.width), dtype=np.uint8
-            )
+            obs_img_sz = cfg['screen_sz']
 
-        if is_eval:
-            self.width = self.height = self.observation_space.shape[2]
-        else:
-            self.width = cfg["screen_width"]
-            self.height = cfg["screen_height"]
+        self.observation_space = spaces.Box(
+            low=0, high=255, shape=(3, obs_img_sz, obs_img_sz), dtype=np.uint8
+        )
+
+        self.screen_sz = self.observation_space.shape[2] if is_eval else cfg['screen_sz']
 
     def step(self, action):
         _, reward, done, info = self.env.step(action=action)
         rgb_obs = self.env.render(
-            mode="rgb_array", width=self.width, height=self.height
+            mode="rgb_array", width=self.screen_sz, height=self.screen_sz
         )
         rgb_obs = np.transpose(rgb_obs, (2, 0, 1))
         return rgb_obs, reward, done, info
@@ -40,7 +36,7 @@ class SB3gym(gym.Env):
     def reset(self):
         _ = self.env.reset()
         rgb_obs = self.env.render(
-            mode="rgb_array", width=self.width, height=self.height
+            mode="rgb_array", width=self.screen_sz, height=self.screen_sz
         )
         return np.transpose(rgb_obs, (2, 0, 1))
 

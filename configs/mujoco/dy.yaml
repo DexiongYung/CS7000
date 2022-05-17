@@ -1,8 +1,7 @@
 id: dy
 task: HalfCheetah-v3
 num_frame_stack: 4
-screen_height: 100
-screen_width: 100
+screen_sz: 100
 seed: 1234
 device_id: 
 log_interval: 1
@@ -11,11 +10,15 @@ eval_interval: 1
 algorithm: Aug_PPO
 augs: ['cutout_color', 'rotate', 'rand_conv']
 train:
-  augmentation: 
-    augs: 
-    distribution: 
-    batch_sz: 
-    is_full: 
+  # augmentation: 
+  #   augs: 
+  #   distribution: 
+  #   batch_sz: 
+  #   is_full: 
+  #   crop:
+  #   crop_sz:
+  #   translate:
+  #   translate_sz:
   save_interval: 5
   num_steps: 2048
   num_env_steps: 15000000
