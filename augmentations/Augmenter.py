@@ -37,7 +37,6 @@ def create_aug_func_list(augs_list: list):
 
 class Augmenter:
     def __init__(self, cfg: dict, device: str) -> None:
-        # TODO: Add post aug sizing to CFG
         self.aug_list = cfg['train']['augmentation']['augs']
         self.probs_list = cfg['train']['augmentation']['distribution']
         self.is_crop = False
@@ -46,14 +45,13 @@ class Augmenter:
         self.translate_sz = None
         self.pre_aug_width = cfg['screen_width']
         self.pre_aug_height = cfg['screen_height']
+        self.batch_sz = cfg['train']['augmentation']['batch_sz']
+        self.is_full = cfg['train']['augmentation']['is_full']
+        self.device = device
 
         if len(self.aug_list) != len(self.probs_list):
             raise ValueError(
                 'Len of list of augs does not equal number of bins in Categorical distribution')
-
-        self.batch_sz = cfg['train']['augmentation']['batch_sz']
-        self.is_full = cfg['train']['augmentation']['is_full']
-        self.device = device
 
         self.aug_funcs = list()
 
@@ -86,11 +84,12 @@ class Augmenter:
         aug_input = torch.zeros(input.shape).to(self.device)
 
         if self.is_crop:
-            aug_input = rad.random_crop(imgs_tnsr=aug_input, out=self.crop_sz)
+            aug_input = rad.random_crop(
+                imgs_tnsr=aug_input, out=self.crop_sz).to(self.device)
 
         if self.is_translate:
             aug_input = rad.random_translate(
-                imgs=aug_input, size=self.translate_sz)
+                imgs=aug_input, size=self.translate_sz).to(self.device)
 
         for value in unique_values:
             idxes_matching = np.where(sampled_idxes == value)[0]
