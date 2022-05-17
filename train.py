@@ -10,7 +10,7 @@ import torch
 from algo import PPO, utils
 from algo.model import Policy, AugPolicy
 from algo.storage import RolloutStorage
-from algo.utils import get_vec_normalize, get_config, get_logger, save_model
+from algo.utils import get_config, get_logger, save_model
 from evaluation import evaluate
 from env import get_env
 from torch.utils.tensorboard import SummaryWriter
@@ -46,7 +46,7 @@ def main(cfg: dict):
 
     envs = get_env(cfg=cfg, num_workers=num_workers, device=device)
 
-    if 'augmentation' not in cfg['train'] or cfg['train']['augmentation'] is None:
+    if cfg['train']['augmentation']['augs'] is None:
         augmenter = None
         logger.info('No augmenter parameters given. No augmenter set')
     else:
@@ -65,20 +65,6 @@ def main(cfg: dict):
         raise NotImplementedError
 
     actor_critic.to(device)
-
-    # if args.load_dir is None:
-    #     actor_critic = Policy(
-    #         envs.observation_space.shape,
-    #         envs.action_space,
-    #         base_kwargs={'recurrent': args.recurrent_policy})
-    #     actor_critic.to(device)
-    # else:
-    #     load_path = args.load_dir if args.load_dir.endswith('.pt') else os.path.join(args.load_dir, args.env_name + '.pt')
-    #     actor_critic, ob_rms = torch.load(load_path)
-    #     vec_norm = get_vec_normalize(envs)
-    #     if vec_norm is not None:
-    #         vec_norm.eval()
-    #         vec_norm.ob_rms = ob_rms
 
     if 'PPO' in cfg['algorithm']:
         agent = PPO(actor_critic=actor_critic, **algo_args)

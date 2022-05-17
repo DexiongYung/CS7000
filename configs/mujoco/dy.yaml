@@ -11,11 +11,11 @@ eval_interval: 1
 algorithm: Aug_PPO
 augs: ['cutout_color', 'rotate', 'rand_conv', 'blackout', 'cutout', 'flip']
 train:
-  # augmentation: 
-  #   augs: 
-  #   distribution: 
-  #   batch_sz: 
-  #   is_full: 
+  augmentation: 
+    augs: 
+    distribution: 
+    batch_sz: 
+    is_full: 
   save_interval: 5
   num_steps: 2048
   num_env_steps: 15000000

@@ -10,11 +10,20 @@ class SB3gym(gym.Env):
         self.height = cfg["screen_height"]
         self.env = gym.make(cfg["task"])
         self.action_space = self.env.action_space
-        self.observation_space = self.env.observation_space
+        aug_cfg = cfg['train']['augmentation']
 
-        self.observation_space = spaces.Box(
-            low=0, high=255, shape=(3, self.height, self.width), dtype=np.uint8
-        )
+        if 'translate' in aug_cfg and aug_cfg['translate']:
+            self.observation_space = spaces.Box(
+                low=0, high=255, shape=(3, aug_cfg['translate_sz'], aug_cfg['translate_sz']), dtype=np.uint8
+            )
+        elif 'crop' in aug_cfg and aug_cfg['crop']:
+            self.observation_space = spaces.Box(
+                low=0, high=255, shape=(3, aug_cfg['crop_sz'], aug_cfg['crop_sz']), dtype=np.uint8
+            )
+        else:
+            self.observation_space = spaces.Box(
+                low=0, high=255, shape=(3, self.height, self.width), dtype=np.uint8
+            )
 
     def step(self, action):
         _, reward, done, info = self.env.step(action=action)
