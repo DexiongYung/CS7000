@@ -9,7 +9,7 @@ log_interval: 1
 num_workers: 8
 eval_interval: 1
 algorithm: Aug_PPO
-augs: ['cutout_color', 'rotate', 'rand_conv', 'blackout', 'cutout', 'flip']
+augs: ['cutout_color', 'rotate', 'rand_conv']
 train:
   augmentation: 
     augs: 
