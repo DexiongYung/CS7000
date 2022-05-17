@@ -86,8 +86,7 @@ class DiscreteAugmenter(nn.Module):
         self.num_augs = num_augs
         self.tau = torch.nn.Sequential(torch.nn.Linear(1, 1),
                                        torch.nn.ReLU())
-        self.logits = torch.nn.Sequential(torch.nn.Linear(1, self.num_augs),
-                                          torch.nn.Softmax())
+        self.logits = torch.nn.Linear(1, self.num_augs)
 
     def forward(self, device):
         tau = self.tau.forward(torch.ones(1).to(device=device)) + 1e-5
