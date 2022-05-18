@@ -1,0 +1,6 @@
+Create isolated git commits that have single focus
+Create robust tests to ensure things are working
+Run tests everytime changes are made before committing to repo
+Implement procedurally and test as you go
+Match results of other papers to ensure correct implementation, before starting your own contributions
+Look at paper repo code with a lot of depth and understand as much as you can what they're doing
