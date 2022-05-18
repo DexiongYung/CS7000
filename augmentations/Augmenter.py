@@ -92,7 +92,7 @@ class Augmenter:
 
         if self.is_crop:
             aug_input = rad.random_crop(
-                imgs=aug_input, out=self.crop_sz)
+                imgs=aug_input, out=self.crop_sz).to(device=self.device)
 
         if self.is_translate:
             centered_input = center_crop_images(

@@ -8,6 +8,18 @@ import logging
 from algo.envs import VecNormalize
 
 
+def get_aug_screen_sz(cfg):
+    screen_sz = None
+    if 'augmentation' in cfg['train']:
+        aug_cfg = cfg['train']['augmentation']
+        if 'translate' in aug_cfg and aug_cfg['translate']:
+            screen_sz = aug_cfg['translate_sz']
+        elif 'crop' in aug_cfg and aug_cfg['crop']:
+            screen_sz = aug_cfg['crop_sz']
+
+    return screen_sz
+
+
 def save_model(save_path, agent, epoch, is_best: bool = False):
     os.makedirs(save_path, exist_ok=True)
 

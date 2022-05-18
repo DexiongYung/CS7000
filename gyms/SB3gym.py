@@ -1,6 +1,7 @@
 import gym
 import numpy as np
 from gym import spaces
+from algo.utils import get_aug_screen_sz
 
 
 class SB3gym(gym.Env):
@@ -9,23 +10,18 @@ class SB3gym(gym.Env):
         self.env = gym.make(cfg["task"])
         self.action_space = self.env.action_space
 
-        obs_img_sz = None
-        if 'augmentation' in cfg['train']:
-            aug_cfg = cfg['train']['augmentation']
-            if 'translate' in aug_cfg and aug_cfg['translate']:
-                obs_img_sz = aug_cfg['translate_sz']
-            elif 'crop' in aug_cfg and aug_cfg['crop']:
-                obs_img_sz = aug_cfg['crop_sz']
-            else:
-                obs_img_sz = cfg['screen_sz']
+        self.aug_screen_sz = None
+        self.screen_sz = cfg['screen_sz']
+        self.aug_screen_sz = get_aug_screen_sz(cfg=cfg)
+
+        if is_eval:
+            self.observation_space = spaces.Box(
+                low=0, high=255, shape=(3, self.aug_screen_sz, self.aug_screen_sz), dtype=np.uint8
+            )
         else:
-            obs_img_sz = cfg['screen_sz']
-
-        self.observation_space = spaces.Box(
-            low=0, high=255, shape=(3, obs_img_sz, obs_img_sz), dtype=np.uint8
-        )
-
-        self.screen_sz = self.observation_space.shape[2] if is_eval else cfg['screen_sz']
+            self.observation_space = spaces.Box(
+                low=0, high=255, shape=(3, self.screen_sz, self.screen_sz), dtype=np.uint8
+            )
 
     def step(self, action):
         _, reward, done, info = self.env.step(action=action)
