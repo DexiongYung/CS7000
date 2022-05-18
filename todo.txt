@@ -1,6 +1,8 @@
 Create isolated git commits that have single focus
 Create robust tests to ensure things are working
+- What is the ultimate metric that you know for sure everything is working?
 Run tests everytime changes are made before committing to repo
 Implement procedurally and test as you go
 Match results of other papers to ensure correct implementation, before starting your own contributions
 Look at paper repo code with a lot of depth and understand as much as you can what they're doing
+- Implementing without full understanding made my life harder.
